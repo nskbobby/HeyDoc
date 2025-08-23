@@ -82,4 +82,4 @@ FROM_EMAIL=noreply@yourdomain.com
 
 ## 📄 License
 
-Private project - All rights reserved
+© 2025 nskbobby. All rights reserved.

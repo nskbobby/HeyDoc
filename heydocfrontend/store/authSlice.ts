@@ -19,23 +19,33 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async (loginData: LoginData) => {
-    const response = await api.post('/auth/login/', loginData);
-    const data = response.data as { access: string; refresh: string; user: User };
-    localStorage.setItem('access_token', data.access);
-    localStorage.setItem('refresh_token', data.refresh);
-    return data.user;
+  async (loginData: LoginData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/auth/login/', loginData);
+      const data = response.data as { access: string; refresh: string; user: User };
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      return data.user;
+    } catch (error: any) {
+      // Return the full error response data so the frontend can handle it properly
+      return rejectWithValue(error.response?.data || error.message || 'Login failed. Please check your credentials.');
+    }
   }
 );
 
 export const register = createAsyncThunk(
   'auth/register',
-  async (registerData: RegisterData) => {
-    const response = await api.post('/auth/register/', registerData);
-    const data = response.data as { access: string; refresh: string; user: User };
-    localStorage.setItem('access_token', data.access);
-    localStorage.setItem('refresh_token', data.refresh);
-    return data.user;
+  async (registerData: RegisterData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/auth/register/', registerData);
+      const data = response.data as { access: string; refresh: string; user: User };
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      return data.user;
+    } catch (error: any) {
+      // Return the full error response data so the frontend can handle it properly
+      return rejectWithValue(error.response?.data || error.message || 'Registration failed. Please try again.');
+    }
   }
 );
 
@@ -158,7 +168,24 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        const errorPayload = action.payload as any;
+        let errorMessage = 'Login failed';
+        
+        if (typeof errorPayload === 'object' && errorPayload) {
+          if (errorPayload.non_field_errors && Array.isArray(errorPayload.non_field_errors)) {
+            errorMessage = errorPayload.non_field_errors[0];
+          } else if (errorPayload.detail) {
+            errorMessage = errorPayload.detail;
+          } else if (errorPayload.email && Array.isArray(errorPayload.email)) {
+            errorMessage = errorPayload.email[0];
+          } else if (errorPayload.password && Array.isArray(errorPayload.password)) {
+            errorMessage = errorPayload.password[0];
+          }
+        } else if (typeof errorPayload === 'string') {
+          errorMessage = errorPayload;
+        }
+        
+        state.error = errorMessage || action.error.message || 'Login failed';
       })
       // Register
       .addCase(register.pending, (state) => {
@@ -172,7 +199,28 @@ const authSlice = createSlice({
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Registration failed';
+        const errorPayload = action.payload as any;
+        let errorMessage = 'Registration failed';
+        
+        if (typeof errorPayload === 'object' && errorPayload) {
+          if (errorPayload.non_field_errors && Array.isArray(errorPayload.non_field_errors)) {
+            errorMessage = errorPayload.non_field_errors[0];
+          } else if (errorPayload.detail) {
+            errorMessage = errorPayload.detail;
+          } else if (errorPayload.email && Array.isArray(errorPayload.email)) {
+            errorMessage = errorPayload.email[0];
+          } else if (errorPayload.password && Array.isArray(errorPayload.password)) {
+            errorMessage = errorPayload.password[0];
+          } else if (errorPayload.first_name && Array.isArray(errorPayload.first_name)) {
+            errorMessage = errorPayload.first_name[0];
+          } else if (errorPayload.last_name && Array.isArray(errorPayload.last_name)) {
+            errorMessage = errorPayload.last_name[0];
+          }
+        } else if (typeof errorPayload === 'string') {
+          errorMessage = errorPayload;
+        }
+        
+        state.error = errorMessage || action.error.message || 'Registration failed';
       })
       // Logout
       .addCase(logout.fulfilled, (state) => {

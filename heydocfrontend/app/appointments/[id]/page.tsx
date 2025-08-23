@@ -101,7 +101,7 @@ const dispatch = useDispatch<AppDispatch>();
     const appointmentDate = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
     const now = new Date();
     const hoursDiff = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-    return ['scheduled', 'confirmed'].includes(appointment.status_name.toLowerCase()) && hoursDiff > 24;
+    return ['scheduled', 'confirmed'].includes(appointment.status_name?.toLowerCase() || '') && hoursDiff > 24;
   };
 
   if (loading) {
@@ -336,7 +336,7 @@ const dispatch = useDispatch<AppDispatch>();
                   </Button>
                 )}
                 
-                {appointment.status_name.toLowerCase() === 'completed' && !user?.is_doctor && (
+                {appointment.status_name?.toLowerCase() === 'completed' && !user?.is_doctor && (
                   <Button 
                     variant="outline" 
                     className="w-full"
@@ -352,7 +352,7 @@ const dispatch = useDispatch<AppDispatch>();
                   Download Receipt
                 </Button>
 
-                {user?.is_doctor && ['scheduled', 'confirmed'].includes(appointment.status_name.toLowerCase()) && (
+                {user?.is_doctor && ['scheduled', 'confirmed'].includes(appointment.status_name?.toLowerCase() || '') && (
                   <Button className="w-full">
                     <Edit className="w-4 h-4 mr-2" />
                     Update Appointment

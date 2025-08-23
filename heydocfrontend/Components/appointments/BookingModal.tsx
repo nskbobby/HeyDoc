@@ -128,11 +128,17 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, doctor }) 
         if (typeof backendError === 'object' && backendError) {
           const error = backendError as any;
           if (error.appointment_time) {
-            errorMessage = error.appointment_time[0] || error.appointment_time;
+            errorMessage = Array.isArray(error.appointment_time) 
+              ? error.appointment_time[0] 
+              : error.appointment_time;
           } else if (error.appointment_date) {
-            errorMessage = error.appointment_date[0] || error.appointment_date;
+            errorMessage = Array.isArray(error.appointment_date) 
+              ? error.appointment_date[0] 
+              : error.appointment_date;
           } else if (error.non_field_errors) {
-            errorMessage = error.non_field_errors[0] || error.non_field_errors;
+            errorMessage = Array.isArray(error.non_field_errors) 
+              ? error.non_field_errors[0] 
+              : error.non_field_errors;
           } else if (error.detail) {
             errorMessage = error.detail;
           }
@@ -182,8 +188,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, doctor }) 
             Dr. {doctor.user.first_name} {doctor.user.last_name}
           </h3>
           <div className="mt-2 space-y-1 text-sm text-gray-600">
-            <p>Specializations: {doctor.specializations.map(s => s.name).join(', ')}</p>
-            <p>Consultation Fee: {formatCurrency(doctor.consultation_fee)}</p>
+            <p>Specializations: {doctor.specializations?.map(s => s.name).join(', ') || 'Not specified'}</p>
+            <p>Consultation Fee: {formatCurrency(doctor.consultation_fee || 0)}</p>
             {doctor.primary_clinic && (
               <p>Location: {doctor.primary_clinic.name}</p>
             )}

@@ -35,19 +35,20 @@ const PatientDashboardPage: React.FC = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [dispatch, user]);
 
-  const upcomingAppointments = appointments.filter(apt => {
+  const upcomingAppointments = (appointments || []).filter(apt => {
+    if (!apt.status_name || !apt.appointment_date) return false;
     const today = new Date();
     const aptDate = new Date(apt.appointment_date);
     return aptDate >= today && ['scheduled', 'confirmed'].includes(apt.status_name.toLowerCase());
   });
 
-  const recentAppointments = appointments.filter(apt => {
-    return apt.status_name.toLowerCase() === 'completed';
+  const recentAppointments = (appointments || []).filter(apt => {
+    return apt.status_name?.toLowerCase() === 'completed';
   }).slice(0, 3);
 
-  const totalAppointments = appointments.length;
-  const completedAppointments = appointments.filter(apt => 
-    apt.status_name.toLowerCase() === 'completed'
+  const totalAppointments = appointments?.length || 0;
+  const completedAppointments = (appointments || []).filter(apt => 
+    apt.status_name?.toLowerCase() === 'completed'
   ).length;
 
   return (
@@ -132,7 +133,7 @@ const PatientDashboardPage: React.FC = () => {
                           ? 'bg-green-100 text-green-800'
                           : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {appointment.status_name}
+                        {appointment.status_name || 'Pending'}
                       </span>
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">

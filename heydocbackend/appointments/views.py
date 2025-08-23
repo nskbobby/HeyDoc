@@ -104,10 +104,18 @@ def available_slots(request):
     ]
     
     # Get existing appointments for this doctor on this date
+    try:
+        active_statuses = AppointmentStatus.objects.filter(
+            name__in=['scheduled', 'confirmed']
+        )
+        active_status_names = [status.name for status in active_statuses if status.name]
+    except Exception:
+        active_status_names = ['scheduled', 'confirmed']
+        
     booked_slots = Appointment.objects.filter(
         doctor=doctor,
         appointment_date=appointment_date,
-        status__name__in=['scheduled', 'confirmed']
+        status__name__in=active_status_names
     ).values_list('appointment_time', flat=True)
     
     # Convert booked times to strings for comparison
@@ -170,10 +178,18 @@ def check_date_availability(request):
     total_standard_slots = 14
     
     # Get booked appointments count
+    try:
+        active_statuses = AppointmentStatus.objects.filter(
+            name__in=['scheduled', 'confirmed']
+        )
+        active_status_names = [status.name for status in active_statuses if status.name]
+    except Exception:
+        active_status_names = ['scheduled', 'confirmed']
+        
     booked_count = Appointment.objects.filter(
         doctor=doctor,
         appointment_date=appointment_date,
-        status__name__in=['scheduled', 'confirmed']
+        status__name__in=active_status_names
     ).count()
     
     available_count = total_standard_slots - booked_count

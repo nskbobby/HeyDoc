@@ -38,12 +38,21 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         appointment_date = data.get('appointment_date')
         appointment_time = data.get('appointment_time')
 
+        # Get valid active statuses
+        try:
+            active_statuses = AppointmentStatus.objects.filter(
+                name__in=['scheduled', 'confirmed']
+            )
+            active_status_names = [status.name for status in active_statuses if status.name]
+        except Exception:
+            active_status_names = ['scheduled', 'confirmed']
+
         # Check if doctor is already booked at this time
         doctor_conflict = Appointment.objects.filter(
             doctor=doctor,
             appointment_date=appointment_date,
             appointment_time=appointment_time,
-            status__name__in=['scheduled', 'confirmed']
+            status__name__in=active_status_names
         ).exists()
 
         if doctor_conflict:
@@ -57,7 +66,7 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
             doctor=doctor,
             appointment_date=appointment_date,
             appointment_time=appointment_time,
-            status__name__in=['scheduled', 'confirmed']
+            status__name__in=active_status_names
         ).exists()
 
         if patient_conflict:
@@ -69,7 +78,7 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         daily_appointments = Appointment.objects.filter(
             patient=patient,
             appointment_date=appointment_date,
-            status__name__in=['scheduled', 'confirmed']
+            status__name__in=active_status_names
         ).count()
 
         if daily_appointments >= 3:  # Limit to 3 appointments per day per patient

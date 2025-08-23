@@ -28,7 +28,7 @@ export default function AppointmentsPage() {
 
   const filteredAppointments = appointments.filter(appointment => {
     if (filter === 'all') return true;
-    return appointment.status_name.toLowerCase() === filter;
+    return appointment.status_name?.toLowerCase() === filter;
   });
 
   return (

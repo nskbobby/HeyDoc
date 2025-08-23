@@ -37,12 +37,8 @@ export const createAppointment = createAsyncThunk(
       const response = await api.post('/appointments/', appointmentData);
       return response.data;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 
-                          error.response?.data?.message || 
-                          error.message || 
-                          'Failed to create appointment';
-      
-      return rejectWithValue(errorMessage);
+      // Return the full error response data so the frontend can handle it properly
+      return rejectWithValue(error.response?.data || error.message || 'Failed to create appointment');
     }
   }
 );

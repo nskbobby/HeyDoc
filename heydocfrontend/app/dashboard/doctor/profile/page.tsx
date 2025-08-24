@@ -94,7 +94,7 @@ export default function DoctorProfile() {
               <User className="w-12 h-12 text-primary-600" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              Dr. {user.first_name} {user.last_name}
+              {user.first_name} {user.last_name}
             </h2>
             <p className="text-gray-600 mb-4">Medical Professional</p>
             
@@ -178,7 +178,10 @@ export default function DoctorProfile() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button 
+                      type="submit" 
+                      disabled={loading}
+                    >
                       {loading ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </div>

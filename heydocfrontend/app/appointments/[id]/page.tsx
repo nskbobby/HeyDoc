@@ -254,7 +254,7 @@ const dispatch = useDispatch<AppDispatch>();
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Dr. {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
+                        {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
                       </h3>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {appointment.doctor.specializations?.map((spec: any) => (

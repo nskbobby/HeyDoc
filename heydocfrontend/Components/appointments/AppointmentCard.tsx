@@ -42,7 +42,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               {showPatient ? (
                 `${appointment.patient.first_name} ${appointment.patient.last_name}`
               ) : (
-                `Dr. ${appointment.doctor.user.first_name} ${appointment.doctor.user.last_name}`
+                `${appointment.doctor.user.first_name} ${appointment.doctor.user.last_name}`
               )}
             </h3>
             <p className="text-sm text-gray-600">

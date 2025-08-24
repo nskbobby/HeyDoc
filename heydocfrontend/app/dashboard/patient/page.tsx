@@ -126,7 +126,7 @@ const PatientDashboardPage: React.FC = () => {
                   <div key={appointment.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">
-                        Dr. {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
+                        {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
                       </h4>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         appointment.status_name === 'confirmed' 
@@ -203,7 +203,7 @@ const PatientDashboardPage: React.FC = () => {
                   <div key={appointment.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">
-                        Dr. {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
+                        {appointment.doctor.user.first_name} {appointment.doctor.user.last_name}
                       </h4>
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         Completed

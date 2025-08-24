@@ -28,7 +28,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor }) => {
           <div className="flex-shrink-0">
             <Image
               src={doctor.user.profile_picture || '/images/default-avatar.jpg'}
-              alt={`Dr. ${doctor.user.first_name} ${doctor.user.last_name}`}
+              alt={`${doctor.user.first_name} ${doctor.user.last_name}`}
               width={80}
               height={80}
               className="rounded-full object-cover"
@@ -39,7 +39,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor }) => {
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Dr. {doctor.user.first_name} {doctor.user.last_name}
+                  {doctor.user.first_name} {doctor.user.last_name}
                   {doctor.is_verified && (
                     <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       Verified

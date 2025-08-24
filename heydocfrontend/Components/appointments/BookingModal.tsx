@@ -185,7 +185,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, doctor }) 
 
         <div className="bg-gray-50 p-4 rounded-lg">
           <h3 className="font-medium text-gray-900">
-            Dr. {doctor.user.first_name} {doctor.user.last_name}
+            {doctor.user.first_name} {doctor.user.last_name}
           </h3>
           <div className="mt-2 space-y-1 text-sm text-gray-600">
             <p>Specializations: {doctor.specializations?.map(s => s.name).join(', ') || 'Not specified'}</p>

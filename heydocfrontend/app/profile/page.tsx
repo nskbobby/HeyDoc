@@ -1,16 +1,19 @@
 'use client';
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { RootState } from '../../store';
+import { RootState, AppDispatch } from '../../store';
+import { updateProfile } from '../../store/authSlice';
+import { addNotification } from '../../store/uiSlice';
 import { Card, CardContent, CardHeader, CardTitle } from '../../Components/ui/Card';
 import Input from '../../Components/ui/Input';
 import Button from '../../Components/ui/Button';
 import { User } from '../../lib/types';
 
 export default function ProfilePage() {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, loading } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   
@@ -24,13 +27,17 @@ export default function ProfilePage() {
 
   const onSubmit = async (data: User) => {
     try {
-      // TODO: Implement profile update API call
-      // TODO: Implement profile update API call
+      await dispatch(updateProfile(data)).unwrap();
       setEditing(false);
-      // Add success notification
-    } catch (error) {
-      // TODO: Add error notification
-      // Add error notification
+      dispatch(addNotification({
+        type: 'success',
+        message: 'Profile updated successfully!'
+      }));
+    } catch (error: any) {
+      dispatch(addNotification({
+        type: 'error',
+        message: error.message || 'Failed to update profile'
+      }));
     }
   };
 
@@ -124,8 +131,11 @@ export default function ProfilePage() {
                     <Button type="button" variant="outline" onClick={() => setEditing(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit">
-                      Save Changes
+                    <Button 
+                      type="submit"
+                      disabled={loading}
+                    >
+                      {loading ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </div>
                 )}

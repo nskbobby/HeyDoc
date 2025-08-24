@@ -129,7 +129,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-900">
-                      {user.is_doctor ? 'Dr. ' : ''}{user.first_name} {user.last_name}
+                      {user.first_name} {user.last_name}
                     </p>
                     <p className="text-xs text-gray-500">
                       {user.is_doctor ? 'Doctor' : 'Patient'}

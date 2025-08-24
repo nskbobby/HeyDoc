@@ -122,7 +122,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
         {/* Doctor Info */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <h3 className="font-medium text-gray-900">
-            Dr. {doctor.user.first_name} {doctor.user.last_name}
+            {doctor.user.first_name} {doctor.user.last_name}
           </h3>
           <div className="mt-1 flex flex-wrap gap-1">
             {doctor.specializations?.map((spec) => (

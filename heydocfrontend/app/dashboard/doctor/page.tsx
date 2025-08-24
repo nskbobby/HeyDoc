@@ -79,7 +79,7 @@ export default function DoctorDashboard() {
     <div className="container py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, Dr. {user?.last_name}
+          Welcome back, {user?.first_name}
         </h1>
         <p className="text-gray-600">Here's what's happening with your practice today.</p>
       </div>

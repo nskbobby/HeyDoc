@@ -54,7 +54,7 @@ const DoctorPage = () => {
               <div className="flex items-start space-x-6">
                 <Image
                   src={selectedDoctor.user.profile_picture || '/images/default-avatar.jpg'}
-                  alt={`Dr. ${selectedDoctor.user.first_name} ${selectedDoctor.user.last_name}`}
+                  alt={`${selectedDoctor.user.first_name} ${selectedDoctor.user.last_name}`}
                   width={120}
                   height={120}
                   className="rounded-full object-cover"
@@ -64,7 +64,7 @@ const DoctorPage = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <h1 className="text-3xl font-bold text-gray-900">
-                        Dr. {selectedDoctor.user.first_name} {selectedDoctor.user.last_name}
+                        {selectedDoctor.user.first_name} {selectedDoctor.user.last_name}
                         {selectedDoctor.is_verified && (
                           <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                             Verified

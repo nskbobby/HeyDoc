@@ -92,7 +92,7 @@ export const initializeAuth = createAsyncThunk(
     if (token) {
       try {
         // First try to get user data with current token
-        const response = await api.get('/auth/user/');
+        const response = await api.get('/auth/profile/');
         return response.data as User;
       } catch (error: any) {
         // If token is invalid, try to refresh if we have a refresh token
@@ -105,7 +105,7 @@ export const initializeAuth = createAsyncThunk(
             localStorage.setItem('access_token', newToken);
             
             // Try getting user data with new token
-            const userResponse = await api.get('/auth/user/');
+            const userResponse = await api.get('/auth/profile/');
             return userResponse.data as User;
           } catch (refreshError) {
             // Refresh failed, clear tokens
@@ -127,9 +127,13 @@ export const initializeAuth = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (profileData: Partial<User>) => {
-    const response = await api.patch('/auth/user/', profileData);
-    return response.data as User;
+  async (profileData: Partial<User>, { rejectWithValue }) => {
+    try {
+      const response = await api.patch('/auth/profile/', profileData);
+      return response.data as User;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to update profile');
+    }
   }
 );
 

@@ -49,12 +49,12 @@ class DoctorProfile(models.Model):
         ordering = ['-rating', '-total_reviews']
 
     def __str__(self):
-        return f"Dr. {self.user.get_full_name()}"
+        return self.user.get_full_name()
 
     @property
     def display_name(self):
         """Return formatted doctor name for frontend."""
-        return f"Dr. {self.user.get_full_name()}"
+        return self.user.get_full_name()
 
     @property
     def specialization_names(self):

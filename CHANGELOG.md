@@ -8,30 +8,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Patient reviews and ratings system
-- Doctor reviews display on doctor detail pages
-- Comprehensive review submission with validation
-- Human verification for user registration (removed in favor of simpler flow)
-- Email OTP verification system (soft-removed but preserved for future use)
+- Comprehensive patient and doctor profile editing functionality
+- Real-time profile updates with proper error handling and user feedback
+- Enhanced appointment booking error display with specific validation messages
+- Production-ready deployment configuration for Vercel and Render
 
 ### Changed
-- Enhanced error handling across frontend components
-- Improved authentication persistence across browser refreshes
-- Optimized doctor schedule management with real-time appointment display
-- Enhanced review modal with better validation and user feedback
+- Improved error handling across authentication and appointment booking flows
+- Enhanced profile management with separate pages for doctors and patients
+- Updated API endpoints for better consistency (profile endpoints standardization)
+- Streamlined doctor name display formatting across the application
+- Optimized form submissions with proper loading states and user feedback
 
 ### Fixed
-- Review submission failing with HTML error responses
-- User logout on browser refresh
-- Doctor schedule page not reflecting patient appointment bookings
-- Quick action buttons functionality in doctor schedule management
-- Authentication token refresh mechanism
-- Next.js chunk loading errors during navigation
+- **Critical Profile Update Issue**: Fixed 404 errors when saving profile changes by correcting API endpoint paths from `/auth/user/` to `/auth/profile/`
+- **Doctor Name Display Bug**: Resolved duplicate "Dr." prefix issue where names were showing as "Dr. Dr. John Smith" by removing hardcoded prefixes from frontend display logic
+- **Authentication Error Display**: Fixed login and registration error messages not appearing on screen despite backend returning proper error responses
+- **Form Error Persistence**: Resolved error messages persisting when switching between login and signup forms
+- **Patient Profile Functionality**: Implemented missing profile update functionality that was showing TODO comments instead of actual API calls
+- Appointment booking error messages now display specific validation errors instead of generic failure messages
+- CORS configuration issues resolved for proper cross-origin API requests
+- Error handling improvements across all form submissions
+
+### Removed
+- Temporary populate data scripts and sample data generation files
+- Development-only debugging code to prepare for production deployment
 
 ### Security
-- Added comprehensive review validation to prevent unauthorized submissions
-- Enhanced JWT token management with automatic refresh
-- Implemented proper user permission checks for appointment reviews
+- Enhanced error message handling to prevent information leakage while maintaining user-friendly feedback
+- Improved API endpoint security with proper authentication checks for profile updates
+
+---
+
+## [0.3.0] - 2025-01-24 (Production Deployment & Bug Fixes)
+
+### Added
+- **Production Deployment Configuration**
+  - Vercel deployment configuration with optimized build settings
+  - Render.com backend deployment setup with gunicorn
+  - Environment variable configuration for production environments
+  - Public directory structure for static assets serving
+
+### Changed
+- **API Configuration**
+  - Updated CORS origins to support production URLs
+  - Enhanced environment variable handling for different deployment stages
+  - Improved build commands and output directory configuration for Vercel
+
+### Fixed
+- **Deployment Issues**
+  - Fixed frontend build configuration for Vercel deployment
+  - Resolved gunicorn installation requirements for Render backend deployment
+  - Corrected CORS origins environment variable formatting
+  - Enhanced public directory inclusion for proper asset serving
+
+### Infrastructure
+- **Backend Deployment (Render)**
+  - Added gunicorn WSGI server for production
+  - Configured environment variables for database and API settings
+  - Set up proper CORS configuration for cross-origin requests
+
+- **Frontend Deployment (Vercel)**
+  - Configured Next.js build settings for optimal performance
+  - Added vercel.json for deployment configuration
+  - Set up environment variables for API URL and app configuration
+  - Included public directory for static asset serving
+
+### Technical Improvements
+- Disabled specific ESLint rules for smoother development workflow
+- Enhanced README documentation with deployment instructions
+- Updated project structure to support multi-environment deployments
 
 ---
 

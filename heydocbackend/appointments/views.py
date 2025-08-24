@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django.db import models
 from .models import Appointment, AppointmentStatus
 from .serializers import (
     AppointmentSerializer, 
@@ -103,12 +104,11 @@ def available_slots(request):
         '17:00', '17:30'
     ]
     
-    # Get existing appointments for this doctor on this date
+    # Get existing appointments for this doctor on this date (optimized query)
     try:
-        active_statuses = AppointmentStatus.objects.filter(
+        active_status_names = list(AppointmentStatus.objects.filter(
             name__in=['scheduled', 'confirmed']
-        )
-        active_status_names = [status.name for status in active_statuses if status.name]
+        ).values_list('name', flat=True))
     except Exception:
         active_status_names = ['scheduled', 'confirmed']
         
@@ -116,7 +116,7 @@ def available_slots(request):
         doctor=doctor,
         appointment_date=appointment_date,
         status__name__in=active_status_names
-    ).values_list('appointment_time', flat=True)
+    ).select_related('status').values_list('appointment_time', flat=True)
     
     # Convert booked times to strings for comparison
     booked_times = [time.strftime('%H:%M') for time in booked_slots]
@@ -144,59 +144,93 @@ def available_slots(request):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def check_date_availability(request):
-    """Check if a doctor has any available slots on a specific date."""
+    """Check if a doctor has any available slots on specific date(s)."""
     from datetime import datetime
     from doctors.models import DoctorProfile
+    from django.utils import timezone
     
     doctor_id = request.query_params.get('doctor_id')
     date_str = request.query_params.get('date')
+    dates_str = request.query_params.get('dates')  # Comma-separated dates for batch
     
-    if not doctor_id or not date_str:
+    if not doctor_id or (not date_str and not dates_str):
         return Response(
-            {'error': 'doctor_id and date parameters are required'}, 
+            {'error': 'doctor_id and either date or dates parameters are required'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
     
     try:
-        doctor = DoctorProfile.objects.get(id=doctor_id)
-        appointment_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    except (DoctorProfile.DoesNotExist, ValueError):
+        doctor = DoctorProfile.objects.select_related('user').get(id=doctor_id)
+    except DoctorProfile.DoesNotExist:
         return Response(
-            {'error': 'Invalid doctor_id or date format'}, 
+            {'error': 'Invalid doctor_id'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Check if the date is in the past
-    from django.utils import timezone
-    if appointment_date < timezone.now().date():
-        return Response({
-            'available': False,
-            'reason': 'Past date'
-        })
+    # Parse dates
+    dates = []
+    try:
+        if dates_str:
+            # Batch request
+            dates = [datetime.strptime(d.strip(), '%Y-%m-%d').date() for d in dates_str.split(',')]
+        elif date_str:
+            # Single date request
+            dates = [datetime.strptime(date_str, '%Y-%m-%d').date()]
+    except ValueError:
+        return Response(
+            {'error': 'Invalid date format. Use YYYY-MM-DD'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     
     # Standard working hours (14 slots total)
     total_standard_slots = 14
+    today = timezone.now().date()
     
-    # Get booked appointments count
+    # Get active statuses once
     try:
-        active_statuses = AppointmentStatus.objects.filter(
+        active_status_names = list(AppointmentStatus.objects.filter(
             name__in=['scheduled', 'confirmed']
-        )
-        active_status_names = [status.name for status in active_statuses if status.name]
+        ).values_list('name', flat=True))
     except Exception:
         active_status_names = ['scheduled', 'confirmed']
+    
+    # Batch query for all dates at once - much more efficient
+    booked_counts = {}
+    if dates:
+        appointments_by_date = Appointment.objects.filter(
+            doctor=doctor,
+            appointment_date__in=dates,
+            status__name__in=active_status_names
+        ).values('appointment_date').annotate(
+            count=models.Count('id')
+        )
         
-    booked_count = Appointment.objects.filter(
-        doctor=doctor,
-        appointment_date=appointment_date,
-        status__name__in=active_status_names
-    ).count()
+        for item in appointments_by_date:
+            booked_counts[item['appointment_date']] = item['count']
     
-    available_count = total_standard_slots - booked_count
+    # Prepare results
+    results = []
+    for date in dates:
+        if date < today:
+            results.append({
+                'available': False,
+                'reason': 'Past date',
+                'available_count': 0,
+                'booked_count': 0,
+                'total_slots': total_standard_slots
+            })
+        else:
+            booked_count = booked_counts.get(date, 0)
+            available_count = total_standard_slots - booked_count
+            results.append({
+                'available': available_count > 0,
+                'available_count': available_count,
+                'booked_count': booked_count,
+                'total_slots': total_standard_slots
+            })
     
-    return Response({
-        'available': available_count > 0,
-        'available_count': available_count,
-        'booked_count': booked_count,
-        'total_slots': total_standard_slots
-    })
+    # Return single result for backward compatibility or batch results
+    if len(results) == 1:
+        return Response(results[0])
+    else:
+        return Response(results)

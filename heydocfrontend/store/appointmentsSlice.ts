@@ -61,9 +61,17 @@ export const fetchAvailableSlots = createAsyncThunk(
 
 export const checkDateAvailability = createAsyncThunk(
   'appointments/checkDateAvailability',
-  async ({ doctorId, date }: { doctorId: number; date: string }) => {
-    const response = await api.get(`/appointments/check-date-availability/?doctor_id=${doctorId}&date=${date}`);
-    return response.data;
+  async ({ doctorId, date, dates }: { doctorId: number; date?: string; dates?: string[] }) => {
+    if (dates && dates.length > 0) {
+      // Batch request for multiple dates
+      const response = await api.get(`/appointments/check-date-availability/?doctor_id=${doctorId}&dates=${dates.join(',')}`);
+      return { doctorId, dates, results: response.data };
+    } else if (date) {
+      // Single date request (backward compatibility)
+      const response = await api.get(`/appointments/check-date-availability/?doctor_id=${doctorId}&date=${date}`);
+      return { doctorId, date, results: response.data };
+    }
+    throw new Error('Either date or dates must be provided');
   }
 );
 
@@ -131,9 +139,21 @@ const appointmentsSlice = createSlice({
       })
       // Check date availability
       .addCase(checkDateAvailability.fulfilled, (state, action) => {
-        const { doctorId, date } = action.meta.arg;
-        const key = `${doctorId}-${date}`;
-        state.dateAvailability[key] = (action.payload as any)?.available;
+        const payload = action.payload as any;
+        const { doctorId } = action.meta.arg;
+        
+        if (payload.dates && Array.isArray(payload.results)) {
+          // Handle batch response
+          payload.results.forEach((result: any, index: number) => {
+            const date = payload.dates[index];
+            const key = `${doctorId}-${date}`;
+            state.dateAvailability[key] = result?.available;
+          });
+        } else if (payload.date) {
+          // Handle single date response
+          const key = `${doctorId}-${payload.date}`;
+          state.dateAvailability[key] = payload.results?.available;
+        }
       });
   },
 });

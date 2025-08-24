@@ -42,14 +42,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
   const availableDates = generateDates();
 
-  // Check availability for all dates when component mounts or doctor changes
+  // Check availability for all dates in a single batch request
   useEffect(() => {
-    availableDates.forEach(date => {
+    const uncheckedDates = availableDates.filter(date => {
       const key = `${doctorId}-${date}`;
-      if (dateAvailability[key] === undefined) {
-        dispatch(checkDateAvailability({ doctorId, date }));
-      }
+      return dateAvailability[key] === undefined;
     });
+    
+    if (uncheckedDates.length > 0) {
+      // Use batch check instead of individual calls
+      dispatch(checkDateAvailability({ 
+        doctorId, 
+        dates: uncheckedDates // Pass multiple dates
+      }));
+    }
   }, [doctorId, dispatch, availableDates, dateAvailability]);
 
   const handleDateChange = (date: string) => {

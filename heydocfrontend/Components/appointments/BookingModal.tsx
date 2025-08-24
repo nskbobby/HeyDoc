@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
@@ -46,19 +46,36 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, doctor }) 
     setValue,
   } = useForm<BookingFormData>();
 
+  // Debounced slot fetching to prevent multiple rapid API calls
+  const debouncedFetchSlots = useCallback(
+    debounce((doctorId: number, date: string) => {
+      dispatch(fetchAvailableSlots({ 
+        doctorId, 
+        date 
+      }));
+    }, 300), // 300ms debounce
+    [dispatch]
+  );
+
   // Handle date change to fetch available slots
   const handleDateChange = async (date: string) => {
     if (date && date !== selectedDate) {
       setSelectedDate(date);
       setValue('appointment_date', date); // Update form value
       
-      // Fetch available slots for this date and doctor
-      dispatch(fetchAvailableSlots({ 
-        doctorId: doctor.id, 
-        date: date 
-      }));
+      // Use debounced fetch to avoid multiple rapid calls
+      debouncedFetchSlots(doctor.id, date);
     }
   };
+
+  // Simple debounce utility
+  function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+    let timeout: NodeJS.Timeout;
+    return ((...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    }) as T;
+  }
 
   // Reset form and state when modal opens/closes
   React.useEffect(() => {

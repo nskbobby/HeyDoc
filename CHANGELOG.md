@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Critical Profile Update Issue**: Fixed 404 errors when saving profile changes by correcting API endpoint paths from `/auth/user/` to `/auth/profile/`
+- **Doctor Appointment Cancellation Bug**: Fixed issue where doctors could see cancel button but couldn't actually cancel appointments due to backend permission restrictions. Updated backend to allow both patients and doctors to cancel appointments they're involved in
 - **Doctor Name Display Bug**: Resolved duplicate "Dr." prefix issue where names were showing as "Dr. Dr. John Smith" by removing hardcoded prefixes from frontend display logic
 - **Authentication Error Display**: Fixed login and registration error messages not appearing on screen despite backend returning proper error responses
 - **Form Error Persistence**: Resolved error messages persisting when switching between login and signup forms

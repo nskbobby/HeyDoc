@@ -40,11 +40,11 @@ class AppointmentDetailView(generics.RetrieveUpdateAPIView):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def cancel_appointment(request, appointment_id):
-    appointment = get_object_or_404(
-        Appointment, 
-        id=appointment_id,
-        patient=request.user
-    )
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    # Verify user has permission to cancel (either patient or doctor)
+    if appointment.patient != request.user and appointment.doctor.user != request.user:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
     
     try:
         cancelled_status = AppointmentStatus.objects.get(name='cancelled')

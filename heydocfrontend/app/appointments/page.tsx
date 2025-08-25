@@ -6,12 +6,14 @@ import { fetchAppointments, cancelAppointment } from '../../store/appointmentsSl
 import AppointmentCard from '../../Components/appointments/AppointmentCard';
 import Spinner from '../../Components/ui/Spinner';
 import Button from '../../Components/ui/Button';
+import {useRouter} from 'next/navigation';
 
 export default function AppointmentsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { appointments, loading } = useSelector((state: RootState) => state.appointments);
   const { user } = useSelector((state: RootState) => state.auth);
   const [filter, setFilter] = useState('all');
+  const router = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -48,6 +50,10 @@ export default function AppointmentsPage() {
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
+          <div className="flex-grow" />
+          <Button className='align-items-end' variant="outline" size="sm" onClick={() => router.push('appointments/history')}>
+            View History
+          </Button>
         </div>
       </div>
 
